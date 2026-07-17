@@ -1,0 +1,9 @@
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+.env
+.gemini_quota.json
+data/X_train.npz
+data/X_test.npz
+data/comments.csv

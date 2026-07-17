@@ -1,0 +1,4 @@
+Model,Best Parameters,CV Accuracy,Train Accuracy,Test Accuracy,Precision,Recall,F1 Score
+Linear SVM,{'C': 0.075},0.6706,0.7691,0.6835,0.6867,0.6835,0.6843
+Logistic Regression,{'C': 0.5},0.6677,0.7704,0.6794,0.6835,0.6794,0.6807
+Complement Naive Bayes,{'alpha': 0.1},0.6436,0.6867,0.6389,0.64,0.6389,0.6342

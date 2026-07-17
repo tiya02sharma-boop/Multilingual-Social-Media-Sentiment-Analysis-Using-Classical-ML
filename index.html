@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="VibeCheck — AI-powered YouTube Comment Sentiment Analysis. Understand your audience instantly with machine learning.">
+  <title>VibeCheck — AI YouTube Sentiment Analysis</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Sora:wght@300;400;500;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <!-- html2pdf -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- ───────────────────────────────────────────
+       AMBIENT BACKGROUND
+  ─────────────────────────────────────────── -->
+  <div class="bg-stage" aria-hidden="true">
+    <div class="blob blob--purple"></div>
+    <div class="blob blob--green"></div>
+    <div class="blob blob--pink"></div>
+  </div>
+  <div class="grain" aria-hidden="true"></div>
+
+  <!-- ───────────────────────────────────────────
+       TOAST
+  ─────────────────────────────────────────── -->
+  <div id="toast-root" role="status" aria-live="polite"></div>
+
+  <!-- ═══════════════════════════════════════════
+       LANDING PAGE (shown by default)
+  ══════════════════════════════════════════════ -->
+  <div id="landing-page">
+
+    <!-- NAV -->
+    <nav id="main-nav" class="nav">
+      <div class="nav__inner">
+        <a href="#" class="nav__logo" onclick="scrollToTop(event)">
+          <span class="nav__logo-mark">S</span>
+          <span class="nav__logo-text">VibeCheck</span>
+        </a>
+        <div class="nav__links">
+          <a href="#section-how" class="nav__link">Workflow</a>
+          <a href="#section-why" class="nav__link">Features</a>
+          <a href="#section-arch" class="nav__link">Architecture</a>
+          <a href="#section-tech" class="nav__link">Technology</a>
+          <a href="#section-try" class="nav__link">Dashboard</a>
+        </div>
+        <button class="btn btn--accent nav__cta" onclick="scrollToTry()">
+          Analyze
+        </button>
+        <button class="nav__hamburger" id="nav-hamburger" aria-label="Menu" onclick="toggleMobileNav()">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+      <!-- Mobile nav -->
+      <div class="nav__mobile" id="nav-mobile">
+        <a href="#section-how" class="nav__mobile-link" onclick="toggleMobileNav()">Workflow</a>
+        <a href="#section-why" class="nav__mobile-link" onclick="toggleMobileNav()">Features</a>
+        <a href="#section-arch" class="nav__mobile-link" onclick="toggleMobileNav()">Architecture</a>
+        <a href="#section-tech" class="nav__mobile-link" onclick="toggleMobileNav()">Technology</a>
+        <a href="#section-try" class="nav__mobile-link" onclick="toggleMobileNav()">Dashboard</a>
+      </div>
+    </nav>
+
+    <!-- ─────────────────────────────────────────
+         SECTION 2 · HERO
+    ───────────────────────────────────────── -->
+    <section id="section-hero" class="hero">
+      <div class="hero__inner">
+        <div class="hero__eyebrow reveal">
+          <span class="live-dot"></span>
+          LIVE MACHINE LEARNING PROJECT
+        </div>
+
+        <h1 class="hero__heading reveal reveal--delay-1">
+          Every YouTube<br>
+          Comment Has<br>
+          A <span class="hero__gradient-word">Voice</span>.<br>
+          <span class="hero__sub-line">We Analyze It.</span>
+        </h1>
+
+        <p class="hero__desc reveal reveal--delay-2">
+          VibeCheck is an AI-powered YouTube Comment Sentiment Analysis platform that automatically extracts comments from any YouTube video and analyzes them using a trained Machine Learning model. Instead of manually reading thousands of comments, users receive an interactive dashboard containing audience sentiment, insights, and visual analytics within seconds.
+        </p>
+
+        <!-- Hero Input Card -->
+        <div class="glass-card hero__card reveal reveal--delay-3">
+          <p class="card-label">ANALYZE A YOUTUBE VIDEO</p>
+          <div class="hero__input-row">
+            <div class="input-wrap">
+              <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22.54 6.42A2.78 2.78 0 0 0 20.6 4.5C18.88 4 12 4 12 4s-6.88 0-8.6.46A2.78 2.78 0 0 0 1.46 6.42 29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58A2.78 2.78 0 0 0 3.4 19.5C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.95-1.95A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58Z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02"/></svg>
+              <input type="text" id="hero-url" class="url-input" placeholder="https://youtube.com/watch?v=..." autocomplete="off" spellcheck="false">
+            </div>
+            <button class="btn btn--accent btn--glow" onclick="startAnalysis('hero-url')">
+              <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16zm3.707-8.707-3-3a1 1 0 0 0-1.414 1.414L10.586 9H7a1 1 0 1 0 0 2h3.586l-1.293 1.293a1 1 0 1 0 1.414 1.414l3-3a1 1 0 0 0 0-1.414z"/></svg>
+              Analyze Video
+            </button>
+          </div>
+          <div class="hero__sample-row">
+            <span class="card-label" style="margin-bottom:0">SAMPLE SIZE</span>
+            <div class="sample-chips" id="hero-sample-chips">
+              <button class="chip" data-val="20" onclick="setSample(20,'hero')">20 Comments</button>
+              <button class="chip chip--active" data-val="50" onclick="setSample(50,'hero')">50 Comments</button>
+              <button class="chip" data-val="100" onclick="setSample(100,'hero')">100 Comments</button>
+              <button class="chip" data-val="200" onclick="setSample(200,'hero')">200 Comments</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Scroll hint -->
+        <div class="hero__scroll-hint reveal reveal--delay-4" aria-hidden="true">
+          <div class="scroll-arrow"></div>
+          <span>Scroll to explore</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─────────────────────────────────────────
+         SECTION 3 · HOW IT WORKS
+    ───────────────────────────────────────── -->
+    <section id="section-how" class="section">
+      <div class="section__inner">
+        <div class="section__badge reveal">HOW IT WORKS</div>
+        <h2 class="section__heading reveal reveal--delay-1">A Complete ML Pipeline.</h2>
+        <p class="section__sub reveal reveal--delay-2">From YouTube comments to audience intelligence — six automated steps.</p>
+
+        <div class="pipeline-grid">
+
+          <div class="pipeline-card glass-card reveal reveal--delay-1">
+            <div class="pipeline-card__num">01</div>
+            <div class="pipeline-card__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13.828 10.172a4 4 0 0 0-5.656 0l-4 4a4 4 0 1 0 5.656 5.656l1.102-1.101m-.758-4.899a4 4 0 0 0 5.656 0l4-4a4 4 0 0 0-5.656-5.656l-1.1 1.1"/></svg>
+            </div>
+            <h3 class="pipeline-card__title">Paste YouTube URL</h3>
+            <p class="pipeline-card__desc">Enter any public YouTube video URL. Short URLs, full URLs, and Shorts all supported.</p>
+          </div>
+
+          <div class="pipeline-arrow reveal reveal--delay-1" aria-hidden="true">↓</div>
+
+          <div class="pipeline-card glass-card reveal reveal--delay-2">
+            <div class="pipeline-card__num">02</div>
+            <div class="pipeline-card__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 0 1-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+            </div>
+            <h3 class="pipeline-card__title">Extract Comments</h3>
+            <p class="pipeline-card__desc">The YouTube Data API v3 fetches top comments with author, likes, and timestamps.</p>
+          </div>
+
+          <div class="pipeline-arrow reveal reveal--delay-2" aria-hidden="true">↓</div>
+
+          <div class="pipeline-card glass-card reveal reveal--delay-3">
+            <div class="pipeline-card__num">03</div>
+            <div class="pipeline-card__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 6h16M4 12h16M4 18h7"/></svg>
+            </div>
+            <h3 class="pipeline-card__title">Clean & Preprocess</h3>
+            <p class="pipeline-card__desc">Text normalization, stopword removal, lemmatization, and multi-language translation via Gemini.</p>
+          </div>
+
+          <div class="pipeline-arrow reveal reveal--delay-3" aria-hidden="true">↓</div>
+
+          <div class="pipeline-card glass-card reveal reveal--delay-4">
+            <div class="pipeline-card__num">04</div>
+            <div class="pipeline-card__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg>
+            </div>
+            <h3 class="pipeline-card__title">Run Trained ML Model</h3>
+            <p class="pipeline-card__desc">TF-IDF vectorization feeds into a trained LinearSVC classifier hosted on FastAPI.</p>
+          </div>
+
+          <div class="pipeline-arrow reveal reveal--delay-4" aria-hidden="true">↓</div>
+
+          <div class="pipeline-card glass-card reveal reveal--delay-5">
+            <div class="pipeline-card__num">05</div>
+            <div class="pipeline-card__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 19v-6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v6a2 2 0 0 1 2 2h2a2 2 0 0 0 2-2zm0 0V9a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v10m-6 0a2 2 0 0 0 2 2h2a2 2 0 0 1 2-2m0 0V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2z"/></svg>
+            </div>
+            <h3 class="pipeline-card__title">Generate Statistics</h3>
+            <p class="pipeline-card__desc">Sentiment counts, emotion distribution, keyword extraction, and timeline progression are computed.</p>
+          </div>
+
+          <div class="pipeline-arrow reveal reveal--delay-5" aria-hidden="true">↓</div>
+
+          <div class="pipeline-card glass-card reveal reveal--delay-6" style="--accent-glow: var(--accent)">
+            <div class="pipeline-card__num" style="color: var(--accent)">06</div>
+            <div class="pipeline-card__icon" style="color: var(--accent)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+            </div>
+            <h3 class="pipeline-card__title">Interactive Dashboard</h3>
+            <p class="pipeline-card__desc">A full analytics dashboard with charts, comments explorer, AI insights, and export tools.</p>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ─────────────────────────────────────────
+         SECTION 4 · WHY VIBECHECK
+    ───────────────────────────────────────── -->
+    <section id="section-why" class="section section--alt">
+      <div class="section__inner">
+        <div class="section__badge reveal">WHY VIBECHECK</div>
+        <h2 class="section__heading reveal reveal--delay-1">Why Use VibeCheck?</h2>
+        <p class="section__sub reveal reveal--delay-2">Understanding audience opinion should not require reading thousands of comments.</p>
+
+        <div class="features-grid">
+
+          <div class="feature-card glass-card reveal reveal--delay-1">
+            <div class="feature-card__icon feature-card__icon--purple">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9.663 17h4.673M12 3v1m6.364 1.636-.707.707M21 12h-1M4 12H3m3.343-5.657-.707-.707m2.828 9.9a5 5 0 1 1 7.072 0l-.548.547A3.374 3.374 0 0 0 14 18.469V19a2 2 0 1 1-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+            </div>
+            <h3 class="feature-card__title">AI Powered Sentiment</h3>
+            <p class="feature-card__desc">A LinearSVC model trained on 100K+ YouTube comments classifies each comment as Positive, Neutral, or Negative with high accuracy.</p>
+          </div>
+
+          <div class="feature-card glass-card reveal reveal--delay-2">
+            <div class="feature-card__icon feature-card__icon--red">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M15 10l4.553-2.069A1 1 0 0 1 21 8.845v6.31a1 1 0 0 1-1.447.894L15 14M3 8a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8z"/></svg>
+            </div>
+            <h3 class="feature-card__title">YouTube API Integration</h3>
+            <p class="feature-card__desc">Real-time comment extraction using the YouTube Data API v3. Supports pagination for deep analysis.</p>
+          </div>
+
+          <div class="feature-card glass-card reveal reveal--delay-3">
+            <div class="feature-card__icon feature-card__icon--green">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            </div>
+            <h3 class="feature-card__title">FastAPI Backend</h3>
+            <p class="feature-card__desc">Lightning-fast Python backend with CORS support, batch prediction endpoints, and zero cold-start delay.</p>
+          </div>
+
+          <div class="feature-card glass-card reveal reveal--delay-4">
+            <div class="feature-card__icon feature-card__icon--yellow">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11 3.055A9.001 9.001 0 1 0 20.945 13H11V3.055z"/><path d="M20.488 9H15V3.512A9.025 9.025 0 0 1 20.488 9z"/></svg>
+            </div>
+            <h3 class="feature-card__title">Interactive Analytics</h3>
+            <p class="feature-card__desc">Doughnut charts, animated progress bars, timeline graphs, keyword clouds, and comment explorers.</p>
+          </div>
+
+          <div class="feature-card glass-card reveal reveal--delay-5">
+            <div class="feature-card__icon feature-card__icon--purple">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/></svg>
+            </div>
+            <h3 class="feature-card__title">ML Pipeline</h3>
+            <p class="feature-card__desc">Full end-to-end pipeline: preprocessing, TF-IDF feature engineering, model inference, and post-processing.</p>
+          </div>
+
+          <div class="feature-card glass-card reveal reveal--delay-6">
+            <div class="feature-card__icon feature-card__icon--green">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 10v6m0 0-3-3m3 3 3-3m2 8H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5.586a1 1 0 0 1 .707.293l5.414 5.414a1 1 0 0 1 .293.707V19a2 2 0 0 1-2 2z"/></svg>
+            </div>
+            <h3 class="feature-card__title">Export Reports</h3>
+            <p class="feature-card__desc">Download a full PDF report or export raw predictions as CSV for further analysis.</p>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ─────────────────────────────────────────
+         SECTION 5 · ARCHITECTURE
+    ───────────────────────────────────────── -->
+    <section id="section-arch" class="section">
+      <div class="section__inner">
+        <div class="section__badge reveal">SYSTEM DESIGN</div>
+        <h2 class="section__heading reveal reveal--delay-1">How The System Works.</h2>
+        <p class="section__sub reveal reveal--delay-2">Eight interconnected components working in real-time to deliver insights.</p>
+
+        <div class="arch-layout reveal reveal--delay-3">
+          <div class="arch-pipeline">
+            <div class="arch-step arch-step--active">
+              <div class="arch-step__dot"></div>
+              <div class="arch-step__label">YouTube URL</div>
+            </div>
+            <div class="arch-connector"></div>
+            <div class="arch-step">
+              <div class="arch-step__dot"></div>
+              <div class="arch-step__label">YouTube Data API</div>
+            </div>
+            <div class="arch-connector"></div>
+            <div class="arch-step">
+              <div class="arch-step__dot"></div>
+              <div class="arch-step__label">Comment Extraction</div>
+            </div>
+            <div class="arch-connector"></div>
+            <div class="arch-step">
+              <div class="arch-step__dot"></div>
+              <div class="arch-step__label">Text Cleaning</div>
+            </div>
+            <div class="arch-connector"></div>
+            <div class="arch-step">
+              <div class="arch-step__dot"></div>
+              <div class="arch-step__label">Feature Engineering</div>
+            </div>
+            <div class="arch-connector"></div>
+            <div class="arch-step">
+              <div class="arch-step__dot"></div>
+              <div class="arch-step__label">ML Model</div>
+            </div>
+            <div class="arch-connector"></div>
+            <div class="arch-step">
+              <div class="arch-step__dot"></div>
+              <div class="arch-step__label">Prediction</div>
+            </div>
+            <div class="arch-connector"></div>
+            <div class="arch-step arch-step--end">
+              <div class="arch-step__dot"></div>
+              <div class="arch-step__label">Analytics Dashboard</div>
+            </div>
+          </div>
+
+          <div class="arch-details">
+            <div class="arch-detail glass-card">
+              <div class="arch-detail__num">01</div>
+              <h4>User Input</h4>
+              <p>A YouTube video URL (standard, short, or Shorts format) is validated and the video ID is extracted client-side.</p>
+            </div>
+            <div class="arch-detail glass-card">
+              <div class="arch-detail__num">02</div>
+              <h4>API Calls</h4>
+              <p>The YouTube Data API v3 fetches video metadata and top-level comments with author data and like counts.</p>
+            </div>
+            <div class="arch-detail glass-card">
+              <div class="arch-detail__num">03</div>
+              <h4>Batch Processing</h4>
+              <p>Comment texts are batched and sent to the FastAPI <code>/predict/batch</code> endpoint in a single POST request.</p>
+            </div>
+            <div class="arch-detail glass-card">
+              <div class="arch-detail__num">04</div>
+              <h4>Inference Pipeline</h4>
+              <p>Texts are translated (Gemini API), vectorized with TF-IDF, and classified by a trained LinearSVC model.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─────────────────────────────────────────
+         SECTION 6 · TECH STACK
+    ───────────────────────────────────────── -->
+    <section id="section-tech" class="section section--alt">
+      <div class="section__inner">
+        <div class="section__badge reveal">TECHNOLOGY</div>
+        <h2 class="section__heading reveal reveal--delay-1">Technology Behind VibeCheck.</h2>
+        <p class="section__sub reveal reveal--delay-2">A carefully chosen stack optimized for speed, accuracy, and developer experience.</p>
+
+        <div class="tech-grid">
+
+          <div class="tech-card glass-card reveal reveal--delay-1">
+            <div class="tech-card__header">
+              <div class="tech-card__icon tech-card__icon--yellow">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+              </div>
+              <div>
+                <div class="tech-card__layer">LAYER 01</div>
+                <h3 class="tech-card__title">Frontend</h3>
+              </div>
+            </div>
+            <ul class="tech-list">
+              <li><span class="tech-badge tech-badge--html">HTML5</span>Semantic structure & accessibility</li>
+              <li><span class="tech-badge tech-badge--css">CSS3</span>Custom design system & animations</li>
+              <li><span class="tech-badge tech-badge--js">JavaScript</span>Vanilla ES6+ application logic</li>
+              <li><span class="tech-badge tech-badge--chart">Chart.js</span>Interactive data visualizations</li>
+            </ul>
+          </div>
+
+          <div class="tech-card glass-card reveal reveal--delay-2">
+            <div class="tech-card__header">
+              <div class="tech-card__icon tech-card__icon--purple">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              </div>
+              <div>
+                <div class="tech-card__layer">LAYER 02</div>
+                <h3 class="tech-card__title">Backend</h3>
+              </div>
+            </div>
+            <ul class="tech-list">
+              <li><span class="tech-badge tech-badge--fastapi">FastAPI</span>High-performance Python API</li>
+              <li><span class="tech-badge tech-badge--python">Python</span>Core application language</li>
+              <li><span class="tech-badge tech-badge--api">REST API</span>JSON endpoints with CORS support</li>
+              <li><span class="tech-badge tech-badge--gemini">Gemini</span>AI-powered text translation</li>
+            </ul>
+          </div>
+
+          <div class="tech-card glass-card reveal reveal--delay-3">
+            <div class="tech-card__header">
+              <div class="tech-card__icon tech-card__icon--green">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg>
+              </div>
+              <div>
+                <div class="tech-card__layer">LAYER 03</div>
+                <h3 class="tech-card__title">Machine Learning</h3>
+              </div>
+            </div>
+            <ul class="tech-list">
+              <li><span class="tech-badge tech-badge--sklearn">scikit-learn</span>Model training & inference</li>
+              <li><span class="tech-badge tech-badge--tfidf">TF-IDF</span>Text feature engineering</li>
+              <li><span class="tech-badge tech-badge--svc">LinearSVC</span>Classification algorithm</li>
+              <li><span class="tech-badge tech-badge--pandas">Pandas · NumPy</span>Data processing</li>
+            </ul>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ─────────────────────────────────────────
+         SECTION 7 · TRY IT YOURSELF
+    ───────────────────────────────────────── -->
+    <section id="section-try" class="section section--try">
+      <div class="section__inner">
+        <div class="section__badge reveal">LIVE DEMO</div>
+        <h2 class="section__heading reveal reveal--delay-1">Analyze Any YouTube Video.</h2>
+        <p class="section__sub reveal reveal--delay-2">Paste a URL and watch your audience data come to life in seconds.</p>
+
+        <div class="glass-card try-card reveal reveal--delay-3">
+          <p class="card-label">YOUTUBE VIDEO URL</p>
+          <div class="hero__input-row">
+            <div class="input-wrap">
+              <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22.54 6.42A2.78 2.78 0 0 0 20.6 4.5C18.88 4 12 4 12 4s-6.88 0-8.6.46A2.78 2.78 0 0 0 1.46 6.42 29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58A2.78 2.78 0 0 0 3.4 19.5C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.95-1.95A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58Z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02"/></svg>
+              <input type="text" id="try-url" class="url-input" placeholder="https://youtube.com/watch?v=..." autocomplete="off" spellcheck="false">
+            </div>
+            <button class="btn btn--accent btn--glow" onclick="startAnalysis('try-url')">
+              <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16zm3.707-8.707-3-3a1 1 0 0 0-1.414 1.414L10.586 9H7a1 1 0 1 0 0 2h3.586l-1.293 1.293a1 1 0 1 0 1.414 1.414l3-3a1 1 0 0 0 0-1.414z"/></svg>
+              Analyze Video
+            </button>
+          </div>
+          <div class="hero__sample-row">
+            <span class="card-label" style="margin-bottom:0">SAMPLE SIZE</span>
+            <div class="sample-chips" id="try-sample-chips">
+              <button class="chip" data-val="20" onclick="setSample(20,'try')">20 Comments</button>
+              <button class="chip chip--active" data-val="50" onclick="setSample(50,'try')">50 Comments</button>
+              <button class="chip" data-val="100" onclick="setSample(100,'try')">100 Comments</button>
+              <button class="chip" data-val="200" onclick="setSample(200,'try')">200 Comments</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+      <div class="footer__inner">
+        <div class="footer__brand">
+          <span class="nav__logo-mark">S</span>
+          <span>VibeCheck</span>
+        </div>
+        <p class="footer__text">AI-Powered YouTube Sentiment Analysis · Machine Learning Project</p>
+        <p class="footer__copy">Built with FastAPI · Scikit-learn · Vanilla JavaScript</p>
+      </div>
+    </footer>
+
+  </div><!-- /landing-page -->
+
+  <!-- ═══════════════════════════════════════════
+       LOADING SCREEN
+  ══════════════════════════════════════════════ -->
+  <div id="loading-screen" class="fullscreen-overlay" style="display:none">
+    <div class="glass-card loading-card">
+      <!-- Orb -->
+      <div class="orb-wrap">
+        <div class="orb-ring orb-ring--outer"></div>
+        <div class="orb-ring orb-ring--mid"></div>
+        <div class="orb-ring orb-ring--inner"></div>
+        <div class="orb-core">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg>
+        </div>
+      </div>
+
+      <h3 class="loading-title">Analyzing Comments</h3>
+      <p class="loading-sub">Running your video through the ML pipeline…</p>
+
+      <div class="loading-steps">
+        <div class="lstep" id="lstep-connect"><span class="lstep__dot"></span><span class="lstep__text">Connecting to Backend</span><span class="lstep__status"></span></div>
+        <div class="lstep" id="lstep-fetch"><span class="lstep__dot"></span><span class="lstep__text">Fetching YouTube Comments</span><span class="lstep__status"></span></div>
+        <div class="lstep" id="lstep-clean"><span class="lstep__dot"></span><span class="lstep__text">Cleaning & Translating Text</span><span class="lstep__status"></span></div>
+        <div class="lstep" id="lstep-model"><span class="lstep__dot"></span><span class="lstep__text">Running ML Model</span><span class="lstep__status"></span></div>
+        <div class="lstep" id="lstep-insights"><span class="lstep__dot"></span><span class="lstep__text">Generating AI Insights</span><span class="lstep__status"></span></div>
+        <div class="lstep" id="lstep-dashboard"><span class="lstep__dot"></span><span class="lstep__text">Building Dashboard</span><span class="lstep__status"></span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       ERROR SCREEN
+  ══════════════════════════════════════════════ -->
+  <div id="error-screen" class="fullscreen-overlay" style="display:none">
+    <div class="glass-card error-card">
+      <div class="error-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+      </div>
+      <h3 id="err-title" class="error-title">Analysis Failed</h3>
+      <p id="err-msg" class="error-msg">Something went wrong. Please try again.</p>
+      <button class="btn btn--outline btn--full" onclick="goToLanding()">← Try Another Video</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       DASHBOARD
+  ══════════════════════════════════════════════ -->
+  <div id="dashboard" style="display:none">
+
+    <!-- Dashboard nav -->
+    <nav class="dash-nav">
+      <div class="nav__inner">
+        <button class="btn btn--ghost dash-back" onclick="goToLanding()">
+          <svg viewBox="0 0 20 20" fill="currentColor" style="width:16px;height:16px"><path fill-rule="evenodd" d="M9.707 16.707a1 1 0 0 1-1.414 0l-6-6a1 1 0 0 1 0-1.414l6-6a1 1 0 0 1 1.414 1.414L5.414 9H17a1 1 0 1 1 0 2H5.414l4.293 4.293a1 1 0 0 1 0 1.414z" clip-rule="evenodd"/></svg>
+          New Analysis
+        </button>
+        <div class="dash-nav__brand">
+          <span class="nav__logo-mark">S</span>
+          <span class="mono" style="font-size:12px;letter-spacing:.1em">VIBECHECK REPORT</span>
+        </div>
+        <div class="dash-nav__actions">
+          <button class="btn btn--outline btn--sm" onclick="downloadPDF()">
+            <svg viewBox="0 0 20 20" fill="currentColor" style="width:14px;height:14px"><path fill-rule="evenodd" d="M3 17a1 1 0 0 1 1-1h12a1 1 0 1 1 0 2H4a1 1 0 0 1-1-1zm3.293-7.707a1 1 0 0 1 1.414 0L9 10.586V3a1 1 0 1 1 2 0v7.586l1.293-1.293a1 1 0 1 1 1.414 1.414l-3 3a1 1 0 0 1-1.414 0l-3-3a1 1 0 0 1 0-1.414z" clip-rule="evenodd"/></svg>
+            PDF
+          </button>
+          <button class="btn btn--outline btn--sm" onclick="downloadCSV()">
+            <svg viewBox="0 0 20 20" fill="currentColor" style="width:14px;height:14px"><path fill-rule="evenodd" d="M3 17a1 1 0 0 1 1-1h12a1 1 0 1 1 0 2H4a1 1 0 0 1-1-1zm3.293-7.707a1 1 0 0 1 1.414 0L9 10.586V3a1 1 0 1 1 2 0v7.586l1.293-1.293a1 1 0 1 1 1.414 1.414l-3 3a1 1 0 0 1-1.414 0l-3-3a1 1 0 0 1 0-1.414z" clip-rule="evenodd"/></svg>
+            CSV
+          </button>
+        </div>
+      </div>
+    </nav>
+
+    <div id="dash-printable" class="dash-body">
+
+      <!-- Video Card -->
+      <div class="glass-card video-card">
+        <div class="video-card__inner">
+          <div class="video-thumb-wrap">
+            <img id="d-thumb" src="" alt="Video thumbnail" class="video-thumb">
+            <span id="d-duration" class="video-duration"></span>
+          </div>
+          <div class="video-info">
+            <h2 id="d-title" class="video-title"></h2>
+            <p id="d-channel" class="video-channel"></p>
+            <div class="video-meta">
+              <div class="vmeta-item"><span class="vmeta-label">VIEWS</span><span id="d-views" class="vmeta-val"></span></div>
+              <div class="vmeta-item"><span class="vmeta-label">PUBLISHED</span><span id="d-date" class="vmeta-val"></span></div>
+              <div class="vmeta-item"><span class="vmeta-label">COMMENTS</span><span id="d-comment-count" class="vmeta-val"></span></div>
+              <div class="vmeta-item"><span class="vmeta-label">ANALYZED</span><span id="d-analyzed" class="vmeta-val"></span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Overview Metrics -->
+      <div class="metrics-row">
+        <div class="metric-card glass-card" data-color="neutral">
+          <div class="metric-card__top">
+            <span class="metric-card__label">TOTAL ANALYZED</span>
+            <svg class="metric-card__icon" viewBox="0 0 20 20" fill="currentColor"><path d="M2 5a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2H9l-3 3v-3H4a2 2 0 0 1-2-2V5z"/><path d="M15 7v2a4 4 0 0 1-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-1z"/></svg>
+          </div>
+          <div id="m-total" class="metric-card__val">0</div>
+          <div class="metric-card__sub">comments processed</div>
+        </div>
+        <div class="metric-card glass-card" data-color="positive">
+          <div class="metric-card__top">
+            <span class="metric-card__label">POSITIVE</span>
+            <svg class="metric-card__icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16zm3.707-9.293a1 1 0 0 0-1.414-1.414L9 10.586 7.707 9.293a1 1 0 0 0-1.414 1.414l2 2a1 1 0 0 0 1.414 0l4-4z" clip-rule="evenodd"/></svg>
+          </div>
+          <div id="m-positive" class="metric-card__val" style="color:var(--positive)">0</div>
+          <div id="m-positive-pct" class="metric-card__sub" style="color:var(--positive)">0%</div>
+        </div>
+        <div class="metric-card glass-card" data-color="neutral-sent">
+          <div class="metric-card__top">
+            <span class="metric-card__label">NEUTRAL</span>
+            <svg class="metric-card__icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16zM7 9a1 1 0 0 0 0 2h6a1 1 0 1 0 0-2H7z" clip-rule="evenodd"/></svg>
+          </div>
+          <div id="m-neutral" class="metric-card__val" style="color:var(--neutral)">0</div>
+          <div id="m-neutral-pct" class="metric-card__sub" style="color:var(--neutral)">0%</div>
+        </div>
+        <div class="metric-card glass-card" data-color="negative">
+          <div class="metric-card__top">
+            <span class="metric-card__label">NEGATIVE</span>
+            <svg class="metric-card__icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16zM7 11a1 1 0 0 1 1-1h4a1 1 0 1 1 0 2H8a1 1 0 0 1-1-1z" clip-rule="evenodd"/></svg>
+          </div>
+          <div id="m-negative" class="metric-card__val" style="color:var(--negative)">0</div>
+          <div id="m-negative-pct" class="metric-card__sub" style="color:var(--negative)">0%</div>
+        </div>
+      </div>
+
+      <!-- Charts Row -->
+      <div class="charts-row">
+
+        <!-- Doughnut -->
+        <div class="glass-card chart-card">
+          <div class="chart-card__header">
+            <h3 class="chart-card__title">Sentiment Breakdown</h3>
+          </div>
+          <div class="donut-wrap">
+            <canvas id="donut-chart" width="240" height="240"></canvas>
+            <div class="donut-center">
+              <div id="donut-label" class="donut-center__label">—</div>
+              <div class="donut-center__sub">Overall</div>
+            </div>
+          </div>
+          <div class="donut-legend">
+            <div class="legend-item"><span class="legend-dot" style="background:var(--positive)"></span>Positive <strong id="leg-pos">0%</strong></div>
+            <div class="legend-item"><span class="legend-dot" style="background:var(--neutral)"></span>Neutral <strong id="leg-neu">0%</strong></div>
+            <div class="legend-item"><span class="legend-dot" style="background:var(--negative)"></span>Negative <strong id="leg-neg">0%</strong></div>
+          </div>
+        </div>
+
+        <!-- Progress Bars + Timeline -->
+        <div class="glass-card chart-card chart-card--wide">
+          <div class="chart-card__header">
+            <h3 class="chart-card__title">Sentiment Distribution</h3>
+          </div>
+          <!-- Bars -->
+          <div class="sent-bars">
+            <div class="sent-bar-row">
+              <span class="sent-bar-label" style="color:var(--positive)">Positive</span>
+              <div class="sent-bar-track"><div id="bar-pos" class="sent-bar-fill" style="background:var(--positive);width:0%"></div></div>
+              <span id="bar-pos-pct" class="sent-bar-pct">0%</span>
+            </div>
+            <div class="sent-bar-row">
+              <span class="sent-bar-label" style="color:var(--neutral)">Neutral</span>
+              <div class="sent-bar-track"><div id="bar-neu" class="sent-bar-fill" style="background:var(--neutral);width:0%"></div></div>
+              <span id="bar-neu-pct" class="sent-bar-pct">0%</span>
+            </div>
+            <div class="sent-bar-row">
+              <span class="sent-bar-label" style="color:var(--negative)">Negative</span>
+              <div class="sent-bar-track"><div id="bar-neg" class="sent-bar-fill" style="background:var(--negative);width:0%"></div></div>
+              <span id="bar-neg-pct" class="sent-bar-pct">0%</span>
+            </div>
+          </div>
+          <!-- Timeline -->
+          <div class="chart-card__header" style="margin-top:28px">
+            <h3 class="chart-card__title">Sentiment Timeline</h3>
+          </div>
+          <div class="timeline-wrap">
+            <canvas id="timeline-chart"></canvas>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Keyword Cloud + Emotions -->
+      <div class="secondary-row">
+
+        <div class="glass-card kw-card">
+          <div class="chart-card__header">
+            <h3 class="chart-card__title">Keyword Cloud</h3>
+          </div>
+          <div id="keyword-cloud" class="kw-cloud"></div>
+        </div>
+
+        <div class="glass-card emo-card">
+          <div class="chart-card__header">
+            <h3 class="chart-card__title">Emotion Distribution</h3>
+          </div>
+          <div class="emo-grid">
+            <div class="emo-item"><div class="emo-emoji">😊</div><div class="emo-label">Happy</div><div id="emo-happy" class="emo-val">0%</div></div>
+            <div class="emo-item"><div class="emo-emoji">😐</div><div class="emo-label">Neutral</div><div id="emo-neutral" class="emo-val">0%</div></div>
+            <div class="emo-item"><div class="emo-emoji">😡</div><div class="emo-label">Angry</div><div id="emo-angry" class="emo-val">0%</div></div>
+            <div class="emo-item"><div class="emo-emoji">❤️</div><div class="emo-label">Appreciation</div><div id="emo-appreciation" class="emo-val">0%</div></div>
+            <div class="emo-item"><div class="emo-emoji">🤔</div><div class="emo-label">Curiosity</div><div id="emo-curiosity" class="emo-val">0%</div></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Comment Explorer -->
+      <div class="glass-card explorer-card">
+        <div class="explorer-header">
+          <h3 class="chart-card__title">Comment Explorer</h3>
+          <div class="explorer-tabs" role="tablist">
+            <button class="etab etab--pos etab--active" onclick="setCommentTab('Positive',this)" role="tab">😊 Positive</button>
+            <button class="etab etab--neu" onclick="setCommentTab('Neutral',this)" role="tab">😐 Neutral</button>
+            <button class="etab etab--neg" onclick="setCommentTab('Negative',this)" role="tab">😡 Negative</button>
+          </div>
+        </div>
+        <div id="comment-list" class="comment-list custom-scroll"></div>
+      </div>
+
+      <!-- AI Summary + Insights -->
+      <div class="insights-row">
+
+        <div class="glass-card ai-card">
+          <div class="chart-card__header">
+            <div class="ai-badge">✦ AI SUMMARY</div>
+          </div>
+          <p id="ai-summary" class="ai-text">Generating AI summary…</p>
+          <div class="ai-footer mono">Powered by Gemini · Sentiment by LinearSVC</div>
+        </div>
+
+        <div class="glass-card insights-card">
+          <div class="chart-card__header">
+            <h3 class="chart-card__title">Audience Insights</h3>
+          </div>
+          <div class="insights-grid">
+            <div class="insight-item">
+              <div class="insight-item__label">MOOD</div>
+              <div id="ins-mood" class="insight-item__val">—</div>
+            </div>
+            <div class="insight-item">
+              <div class="insight-item__label">ENGAGEMENT</div>
+              <div id="ins-engagement" class="insight-item__val">—</div>
+            </div>
+            <div class="insight-item">
+              <div class="insight-item__label">RECEPTION</div>
+              <div id="ins-reception" class="insight-item__val">—</div>
+            </div>
+            <div class="insight-item">
+              <div class="insight-item__label">SATISFACTION</div>
+              <div id="ins-satisfaction" class="insight-item__val">—</div>
+            </div>
+            <div class="insight-item">
+              <div class="insight-item__label">TOXICITY</div>
+              <div id="ins-toxicity" class="insight-item__val">—</div>
+            </div>
+            <div class="insight-item">
+              <div class="insight-item__label">TREND</div>
+              <div id="ins-trend" class="insight-item__val">—</div>
+            </div>
+            <div class="insight-item insight-item--wide">
+              <div class="insight-item__label">RECOMMENDATION</div>
+              <div id="ins-recommendation" class="insight-item__val">—</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Dashboard footer -->
+      <div class="dash-footer">
+        <button class="btn btn--outline" onclick="downloadPDF()">
+          <svg viewBox="0 0 20 20" fill="currentColor" style="width:16px;height:16px"><path fill-rule="evenodd" d="M3 17a1 1 0 0 1 1-1h12a1 1 0 1 1 0 2H4a1 1 0 0 1-1-1zm3.293-7.707a1 1 0 0 1 1.414 0L9 10.586V3a1 1 0 1 1 2 0v7.586l1.293-1.293a1 1 0 1 1 1.414 1.414l-3 3a1 1 0 0 1-1.414 0l-3-3a1 1 0 0 1 0-1.414z" clip-rule="evenodd"/></svg>
+          Export PDF Report
+        </button>
+        <button class="btn btn--outline" onclick="downloadCSV()">
+          <svg viewBox="0 0 20 20" fill="currentColor" style="width:16px;height:16px"><path fill-rule="evenodd" d="M3 17a1 1 0 0 1 1-1h12a1 1 0 1 1 0 2H4a1 1 0 0 1-1-1zm3.293-7.707a1 1 0 0 1 1.414 0L9 10.586V3a1 1 0 1 1 2 0v7.586l1.293-1.293a1 1 0 1 1 1.414 1.414l-3 3a1 1 0 0 1-1.414 0l-3-3a1 1 0 0 1 0-1.414z" clip-rule="evenodd"/></svg>
+          Export CSV
+        </button>
+        <button class="btn btn--accent btn--glow" onclick="goToLanding()">
+          ↩ Analyze Another Video
+        </button>
+      </div>
+
+    </div>
+  </div><!-- /dashboard -->
+
+  <script src="config.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
