@@ -4,7 +4,7 @@ from typing import List
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse,Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
@@ -49,6 +49,25 @@ def predict(payload: CommentRequest):
 def predict_batch(payload: BatchCommentRequest):
     return run_pipeline_batch(payload.texts)
 
+@app.post("/predict/batch")
+def predict_batch(payload: BatchCommentRequest):
+    return run_pipeline_batch(payload.texts)
 
-# Mount the root directory to serve static assets (css, js, config)
+
+@app.get("/config.js")
+def config_js():
+    # Injects the YouTube key from Render's environment at request time,
+    # so the real key never has to live in the committed config.js file.
+    youtube_key = os.getenv("YOUTUBE_API_KEY", "")
+    body = (
+        "const CONFIG = {\n"
+        f'  YOUTUBE_API_KEY: "{youtube_key}"\n'
+        "};\n"
+    )
+    return Response(content=body, media_type="application/javascript")
+
+
+# Mount the root directory to serve static assets (css, js). This route is
+# registered AFTER /config.js above, so FastAPI matches the dynamic route
+# first and this only serves the remaining static files (index.html, etc).
 app.mount("/", StaticFiles(directory=ROOT_DIR), name="static")
